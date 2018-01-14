@@ -36,6 +36,9 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,80 +49,73 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MyLocationUsingLocationAPI extends AppCompatActivity implements ConnectionCallbacks,
-        OnConnectionFailedListener,OnRequestPermissionsResultCallback,
+        OnConnectionFailedListener, OnRequestPermissionsResultCallback,
         PermissionResultCallback {
 
-
-    @BindView(R.id.btnLocation)Button btnProceed;
-    @BindView(R.id.tvAddress)TextView tvAddress;
-    @BindView(R.id.tvEmpty)TextView tvEmpty;
-    @BindView(R.id.rlPickLocation)RelativeLayout rlPick;
-
-
     // LogCat tag
-    private static final String TAG = MyLocationUsingHelper.class.getSimpleName();
-
+    private static final String TAG = "LocationHelper";
     private final static int PLAY_SERVICES_REQUEST = 1000;
     private final static int REQUEST_CHECK_SETTINGS = 2000;
-
-    private Location mLastLocation;
-
+    //Binding the widgets
+    @BindView(R.id.btnLocation)
+    Button btnProceed;
+    @BindView(R.id.tvAddress)
+    TextView tvAddress;
+    @BindView(R.id.tvEmpty)
+    TextView tvEmpty;
+    @BindView(R.id.rlPickLocation)
+    RelativeLayout rlPick;
     // Google client to interact with Google API
-
     private GoogleApiClient mGoogleApiClient;
-
-    double latitude;
-    double longitude;
-
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
+    private Location mLastLocation;
+    private String mUserId;
+    private DatabaseReference mDatabase;
     // list of permissions
+    ArrayList<String> mPermissions = new ArrayList<>();
+    PermissionUtils mPermissionUtils;
+    boolean mIsPermissionGranted;
+    double mLatitude;
+    double mLongitude;
 
-    ArrayList<String> permissions=new ArrayList<>();
-    PermissionUtils permissionUtils;
-
-    boolean isPermissionGranted;
-
-    private FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_service);
 
-        firebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mUserId = mFirebaseUser.getUid();
         ButterKnife.bind(this);
 
-        permissionUtils=new PermissionUtils(MyLocationUsingLocationAPI.this);
+        mPermissionUtils = new PermissionUtils(MyLocationUsingLocationAPI.this);
 
-        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-
-        permissionUtils.check_permission(permissions,"Need GPS permission for getting your location",1);
-
+        mPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        mPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        mPermissionUtils.check_permission(mPermissions, "Need GPS permission for getting your location", 1);
 
         rlPick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getLocation();
-
                 if (mLastLocation != null) {
-                    latitude = mLastLocation.getLatitude();
-                    longitude = mLastLocation.getLongitude();
-                    String lat = String.valueOf(latitude);
-                    String lag = String.valueOf(longitude);
-
-                    firebaseAuth.createUserWithEmailAndPassword(lat,lag);
+                    mLatitude = mLastLocation.getLatitude();
+                    mLongitude = mLastLocation.getLongitude();
+                    String lat = String.valueOf(mLatitude);
+                    String lag = String.valueOf(mLongitude);
+                    mDatabase.child("users").child(mUserId).child("co-ordinates").child("lattitude").setValue(lat);
+                    mDatabase.child("users").child(mUserId).child("co-ordinates").child("longitude").setValue(lag);
                     getAddress();
-
                 } else {
-
-                    if(btnProceed.isEnabled())
+                    if (btnProceed.isEnabled())
                         btnProceed.setEnabled(false);
-
                     showToast("Couldn't get the location. Make sure location is enabled on the device");
                 }
             }
         });
-
 
 
         btnProceed.setOnClickListener(new View.OnClickListener() {
@@ -131,7 +127,6 @@ public class MyLocationUsingLocationAPI extends AppCompatActivity implements Con
 
         // check availability of play services
         if (checkPlayServices()) {
-
             // Building the GoogleApi client
             buildGoogleApiClient();
         }
@@ -141,105 +136,76 @@ public class MyLocationUsingLocationAPI extends AppCompatActivity implements Con
 
     /**
      * Method to display the location on UI
-     * */
-
+     */
     private void getLocation() {
 
-        if (isPermissionGranted) {
-
-            try
-            {
+        if (mIsPermissionGranted) {
+            try {
                 mLastLocation = LocationServices.FusedLocationApi
                         .getLastLocation(mGoogleApiClient);
-            }
-            catch (SecurityException e)
-            {
+            } catch (SecurityException e) {
                 e.printStackTrace();
             }
-
         }
-
     }
 
-    public Address getAddress(double latitude,double longitude)
-    {
+    public Address getAddress(double latitude, double longitude) {
         Geocoder geocoder;
         List<Address> addresses;
         geocoder = new Geocoder(this, Locale.getDefault());
 
         try {
-            addresses = geocoder.getFromLocation(latitude,longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+            addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
             return addresses.get(0);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return null;
-
     }
 
 
-    public void getAddress()
-    {
+    public void getAddress() {
 
-        Address locationAddress=getAddress(latitude,longitude);
+        Address locationAddress = getAddress(mLatitude, mLongitude);
 
-        if(locationAddress!=null)
-        {
+        if (locationAddress != null) {
             String address = locationAddress.getAddressLine(0);
             String address1 = locationAddress.getAddressLine(1);
             String city = locationAddress.getLocality();
             String state = locationAddress.getAdminArea();
             String country = locationAddress.getCountryName();
             String postalCode = locationAddress.getPostalCode();
-
             String currentLocation;
 
-            if(!TextUtils.isEmpty(address))
-            {
-                currentLocation=address;
-
+            if (!TextUtils.isEmpty(address)) {
+                currentLocation = address;
                 if (!TextUtils.isEmpty(address1))
-                    currentLocation+="\n"+address1;
-
-                if (!TextUtils.isEmpty(city))
-                {
-                    currentLocation+="\n"+city;
-
+                    currentLocation += "\n" + address1;
+                if (!TextUtils.isEmpty(city)) {
+                    currentLocation += "\n" + city;
                     if (!TextUtils.isEmpty(postalCode))
-                        currentLocation+=" - "+postalCode;
-                }
-                else
-                {
+                        currentLocation += " - " + postalCode;
+                } else {
                     if (!TextUtils.isEmpty(postalCode))
-                        currentLocation+="\n"+postalCode;
+                        currentLocation += "\n" + postalCode;
                 }
-
                 if (!TextUtils.isEmpty(state))
-                    currentLocation+="\n"+state;
-
+                    currentLocation += "\n" + state;
                 if (!TextUtils.isEmpty(country))
-                    currentLocation+="\n"+country;
-
+                    currentLocation += "\n" + country;
                 tvEmpty.setVisibility(View.GONE);
                 tvAddress.setText(currentLocation);
                 tvAddress.setVisibility(View.VISIBLE);
-
-                if(!btnProceed.isEnabled())
-                    btnProceed.setEnabled(true);
-
-
+                if (!btnProceed.isEnabled())
+                    if (!btnProceed.isEnabled())
+                        btnProceed.setEnabled(true);
             }
-
         }
-
     }
 
     /**
      * Creating google api client object
-     * */
-
+     */
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -252,10 +218,8 @@ public class MyLocationUsingLocationAPI extends AppCompatActivity implements Con
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(mLocationRequest);
-
         PendingResult<LocationSettingsResult> result =
                 LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
 
@@ -285,26 +249,19 @@ public class MyLocationUsingLocationAPI extends AppCompatActivity implements Con
                 }
             }
         });
-
-
     }
-
-
-
 
     /**
      * Method to verify google play services on the device
-     * */
-
+     */
     private boolean checkPlayServices() {
 
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
-
         int resultCode = googleApiAvailability.isGooglePlayServicesAvailable(this);
 
         if (resultCode != ConnectionResult.SUCCESS) {
             if (googleApiAvailability.isUserResolvableError(resultCode)) {
-                googleApiAvailability.getErrorDialog(this,resultCode,
+                googleApiAvailability.getErrorDialog(this, resultCode,
                         PLAY_SERVICES_REQUEST).show();
             } else {
                 Toast.makeText(getApplicationContext(),
@@ -316,7 +273,6 @@ public class MyLocationUsingLocationAPI extends AppCompatActivity implements Con
         }
         return true;
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -366,48 +322,38 @@ public class MyLocationUsingLocationAPI extends AppCompatActivity implements Con
         mGoogleApiClient.connect();
     }
 
-
     // Permission check functions
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         // redirects to utils
-        permissionUtils.onRequestPermissionsResult(requestCode,permissions,grantResults);
-
+        mPermissionUtils.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-
-
-
 
     @Override
     public void PermissionGranted(int request_code) {
-        Log.i("PERMISSION","GRANTED");
-        isPermissionGranted=true;
+        Log.i("PERMISSION", "GRANTED");
+        mIsPermissionGranted = true;
     }
 
     @Override
     public void PartialPermissionGranted(int request_code, ArrayList<String> granted_permissions) {
-        Log.i("PERMISSION PARTIALLY","GRANTED");
+        Log.i("PERMISSION PARTIALLY", "GRANTED");
     }
 
     @Override
     public void PermissionDenied(int request_code) {
-        Log.i("PERMISSION","DENIED");
+        Log.i("PERMISSION", "DENIED");
     }
 
     @Override
     public void NeverAskAgain(int request_code) {
-        Log.i("PERMISSION","NEVER ASK AGAIN");
+        Log.i("PERMISSION", "NEVER ASK AGAIN");
     }
 
-    public void showToast(String message)
-    {
-        Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
+    public void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
-
-
-
 }
 

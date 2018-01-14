@@ -16,6 +16,14 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+        <activity android:name="com.droidmentor.locationhelper.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.droidmentor.locationhelper.LoginActivity" ></activity>
+        <activity android:name="com.droidmentor.locationhelper.SignupActivity"></activity>
 
         <activity
             android:name=".MyLocationUsingHelper"
@@ -23,13 +31,7 @@
             android:screenOrientation="portrait">
 
         </activity>
-        <activity android:name=".MyLocationUsingLocationAPI">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".MyLocationUsingLocationAPI"></activity>
     </application>
 
 </manifest>

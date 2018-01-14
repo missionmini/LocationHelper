@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "215742915419-2bgeuhkq201pgor1ca40f1eal5f05qi5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.droidmentor.locationhelper",
+            "certificate_hash": "4e9566d5434ec29f49bc3e9ba6c6a95861bf26b3"
+          }
+        },
+        {
           "client_id": "215742915419-p6h86n5ojaeil1nfnni34ls9f8opcnok.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "215742915419-p6h86n5ojaeil1nfnni34ls9f8opcnok.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
