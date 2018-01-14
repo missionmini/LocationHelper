@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "215742915419",
+    "firebase_url": "https://locationservice-1dece.firebaseio.com",
+    "project_id": "locationservice-1dece",
+    "storage_bucket": "locationservice-1dece.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:215742915419:android:fd6492498014f8f2",
+        "android_client_info": {
+          "package_name": "com.droidmentor.locationhelper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "215742915419-p6h86n5ojaeil1nfnni34ls9f8opcnok.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6zVl6YMNrJYk6hHq4Pk5GJV0PLh2ycuA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

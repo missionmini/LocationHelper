@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "518487915814",
+    "firebase_url": "https://vendorlocation-a65ed.firebaseio.com",
+    "project_id": "vendorlocation-a65ed",
+    "storage_bucket": "vendorlocation-a65ed.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:518487915814:android:fd6492498014f8f2",
+        "android_client_info": {
+          "package_name": "com.droidmentor.locationhelper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "518487915814-3dia8ute1h9pivmi2hj6enpf0qs6v0vi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCW38lINhbGnqAuevp8jeAI9l-81UtfvCQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
