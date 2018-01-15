@@ -24,7 +24,8 @@
         </activity>
         <activity android:name="com.droidmentor.locationhelper.LoginActivity" ></activity>
         <activity android:name="com.droidmentor.locationhelper.SignupActivity"></activity>
-
+        <activity android:name="com.droidmentor.locationhelper.SelectionPage"></activity>
+        <activity android:name="com.droidmentor.locationhelper.UserPage"></activity>
         <activity
             android:name=".MyLocationUsingHelper"
             android:label="MyLocation"

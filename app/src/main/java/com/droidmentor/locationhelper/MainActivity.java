@@ -42,9 +42,8 @@ public class MainActivity extends AppCompatActivity {
             loadLogInView();
         } else {
             Log.e("Ganesh:", "loading location helper");
-            loadLocationHelper();
+            loadSelectionPage();
         }
-
     }
 
     @Override
@@ -61,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void loadLocationHelper() {
-        Intent intent = new Intent(this, com.droidmentor.locationhelper.MyLocationUsingLocationAPI.class);
+    private void loadSelectionPage() {
+        Intent intent = new Intent(this, com.droidmentor.locationhelper.SelectionPage.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

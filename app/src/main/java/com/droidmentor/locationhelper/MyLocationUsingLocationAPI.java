@@ -89,10 +89,10 @@ public class MyLocationUsingLocationAPI extends AppCompatActivity implements Con
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mUserId = mFirebaseUser.getUid();
+
         ButterKnife.bind(this);
 
         mPermissionUtils = new PermissionUtils(MyLocationUsingLocationAPI.this);
-
         mPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
         mPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         mPermissionUtils.check_permission(mPermissions, "Need GPS permission for getting your location", 1);
@@ -124,13 +124,11 @@ public class MyLocationUsingLocationAPI extends AppCompatActivity implements Con
                 showToast("Proceed to the next step");
             }
         });
-
         // check availability of play services
         if (checkPlayServices()) {
             // Building the GoogleApi client
             buildGoogleApiClient();
         }
-
     }
 
 
