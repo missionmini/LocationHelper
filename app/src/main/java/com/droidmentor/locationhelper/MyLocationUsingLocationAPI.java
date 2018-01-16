@@ -37,6 +37,9 @@ import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -97,6 +100,7 @@ public class MyLocationUsingLocationAPI extends AppCompatActivity implements Con
         mPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         mPermissionUtils.check_permission(mPermissions, "Need GPS permission for getting your location", 1);
 
+        //Ganesh: @TODO Add the count of the vendors created to enumerate.
         rlPick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -106,14 +110,48 @@ public class MyLocationUsingLocationAPI extends AppCompatActivity implements Con
                     mLongitude = mLastLocation.getLongitude();
                     String lat = String.valueOf(mLatitude);
                     String lag = String.valueOf(mLongitude);
-                    mDatabase.child("users").child(mUserId).child("co-ordinates").child("lattitude").setValue(lat);
-                    mDatabase.child("users").child(mUserId).child("co-ordinates").child("longitude").setValue(lag);
+                    mDatabase.child("Vendors").child(mUserId).child("lattitude").setValue(mLatitude);
+                    mDatabase.child("Vendors").child(mUserId).child("longitude").setValue(mLongitude);
+                    mDatabase.child("Vendors").child(mUserId).child("ON").setValue(0);
                     getAddress();
                 } else {
                     if (btnProceed.isEnabled())
                         btnProceed.setEnabled(false);
                     showToast("Couldn't get the location. Make sure location is enabled on the device");
                 }
+
+                // Use Firebase to populate the list.
+                mDatabase.child("Vendors").addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        
+//                        mDatabase.child("Vendors").child("Count").setValue(5);
+//                        int i =0;
+//                        if(dataSnapshot != null)
+//                         i = dataSnapshot.child("Vendors").child("Count").getValue(Integer.class);
+//                        mDatabase.child("Vendors").child("Count").setValue(i+1);
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
         });
 
